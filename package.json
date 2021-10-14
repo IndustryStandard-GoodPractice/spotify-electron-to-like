@@ -1,0 +1,18 @@
+{
+  "name": "spotify-electron-to-like",
+  "version": "1.0.0",
+  "description": "electron app for spotify push to like",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Durush",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^15.1.2"
+  },
+  "dependencies": {
+    "node-fetch": "^3.0.0",
+    "electron": "^15.1.2"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "spotify-push-to-like",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "spotify-web-api-node": "^5.0.0",
+    "spotifyWebUtility": "file:spotifyWebUtility"
+  }
+}
