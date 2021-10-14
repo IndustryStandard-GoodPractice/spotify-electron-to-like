@@ -1,20 +1,35 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <link href="css/styles.css" rel="stylesheet" type="text/css">
-    <title>Spotify Push To Like</title>
-  </head>
-  <div class="navBar">
-    <img src="logos/spotify-logo.svg" alt='logo' class="logo">
-  </div>
-  <body>
-    <h1>Spotify Push To Like</h1>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
-  </body>
+    <head>
+        <meta charset="UTF-8">
+        <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+        <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+        <link href="css/styles.css" rel="stylesheet" type="text/css">
+        <title>Spotify Push To Like</title>
+    </head>
+    <div class='mainWindow'>
+        <div class='topBar'>
+            <img src="logos/github-logo.svg" alt='logo' class="githubLogo">
+            <div class=leftBar>
+                <img src="logos/spotify-logo.svg" alt='logo' class="spotifyLogo">
+                <h1 class='title'>Push To Like</h1>
+            </div>
+        </div>
+        <div class="mainContents">
+            <div class="historyBar">
+                <p class="likeText">Like History</p>
+            </div>
+            <div class='song'>
+                <div class ='songLeftAlign'>
+                    <div class='songInfo'>
+                        <p class= 'songTitle'>Adult</p>
+                        <p class= 'songArtist'>Christian Leave</p>
+                    </div>
+                    <img src="logos/testAlbumCover.jpg" class="albumCover"></img>
+                </div>
+                <img src="logos/liked-icon.svg" class="likedIcon"></img>
+            </div>
+        </div>
+    </div>
 </html>
