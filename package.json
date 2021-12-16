@@ -12,7 +12,8 @@
     "electron": "^15.1.2"
   },
   "dependencies": {
-    "node-fetch": "^3.0.0",
-    "electron": "^15.1.2"
+    "electron": "^15.1.2",
+    "electron-store": "^8.0.1",
+    "node-fetch": "^3.0.0"
   }
 }

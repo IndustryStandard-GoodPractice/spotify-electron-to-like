@@ -31,6 +31,11 @@ var caller = new spotifyWebUtility();
     return res.send('Received a GET HTTP method');
   });
 
+  app.get("/liked-tracks", (req, res) =>{
+    let tracks = caller.getCachedTracks()
+    return res.send(tracks)
+  })
+
   app.listen(8888, () =>
     console.log(
       'HTTP Server up. Now go to http://localhost:8888/login in your browser.'

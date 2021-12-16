@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "node-localstorage": "^2.2.1",
     "spotify-web-api-node": "^5.0.0",
     "spotifyWebUtility": "file:spotifyWebUtility"
   }

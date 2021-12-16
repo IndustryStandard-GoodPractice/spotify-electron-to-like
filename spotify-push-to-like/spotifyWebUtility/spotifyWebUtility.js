@@ -1,32 +1,27 @@
 const SpotifyWebApi = require('spotify-web-api-node');
+const LocalStorage = require('node-localstorage').LocalStorage;
 const scopes = [
-    'ugc-image-upload',
     'user-read-playback-state',
-    'user-modify-playback-state',
     'user-read-currently-playing',
-    'streaming',
-    'app-remote-control',
-    'user-read-email',
-    'user-read-private',
-    'playlist-read-collaborative',
-    'playlist-modify-public',
-    'playlist-read-private',
-    'playlist-modify-private',
     'user-library-modify',
     'user-library-read',
-    'user-top-read',
-    'user-read-playback-position',
-    'user-read-recently-played',
-    'user-follow-read',
-    'user-follow-modify'
   ];
-  
+
+const CACHE_SIZE = 10
 // credentials are optional
 const spotifyApi = new SpotifyWebApi({
     clientId: '9789a262562649b98b5621c2b83e7753',
     clientSecret: '2d44d8fe8e8e4a979c3728be334b9390',
     redirectUri: 'http://localhost:8888/callback'
   });
+
+const storage = new LocalStorage('./local-storage')
+
+var cachedTracks = storage.getItem('cached-tracks') ? JSON.parse(storage.getItem('cached-tracks')) : {
+  tracks : []
+};
+
+var currentTrack = {}
 
 class spotifyWebUtility{
     constructor(access_token = null, refresh_token = null){
@@ -88,12 +83,13 @@ class spotifyWebUtility{
     async track(user){
       const track = await spotifyApi.getMyCurrentPlayingTrack(user);
       console.log("currently listening to " + track.body.item.name + " by: " + track.body.item.album.artists[0].name)
+      await this.cacheTrackData(track.body.item)
       return track.body.item.id
     }
 
     async like(id){
-      const isLiked = await spotifyApi.containsMySavedTracks([id])
-      if(isLiked.body[0]){
+      let isLiked = await this.trackIsLiked(id)
+      if(isLiked){
         await spotifyApi.removeFromMySavedTracks([id])
         console.log("track is already liked... removing it")
         console.log("removed track from liked with id: " + id)
@@ -102,6 +98,35 @@ class spotifyWebUtility{
       const response = await spotifyApi.addToMySavedTracks([id])
       console.log("added track to liked with id: " + id)
       console.log("response status: " + response.statusCode)
+    }
+
+    async trackIsLiked(id){
+      const isLiked = await spotifyApi.containsMySavedTracks([id])
+      return isLiked.body[0]
+    }
+
+    async cacheTrackData(track){
+      let json = {}
+      json.track= track.name
+      json.artist = track.album.artists[0].name
+      let image = track.album.images[2]
+      json.albumCover = {
+        height : image.height,
+        width : image.width,
+        url : image.url
+      }
+      let isLiked = await this.trackIsLiked(track.id)
+      json.result = isLiked ? "UNLIKED" : "LIKED"
+      cachedTracks.tracks.push(json)
+      while(cachedTracks.tracks.length > CACHE_SIZE){
+        cachedTracks.tracks.splice(0,1)
+      }
+      currentTrack = json
+      storage.setItem('cached-tracks', JSON.stringify(cachedTracks))
+    }
+
+    getCachedTracks(){
+      return cachedTracks
     }
 
     likeCurrentTrack() {
@@ -113,7 +138,9 @@ class spotifyWebUtility{
           await this.like(t)
       })().catch(e => {
           console.error(e);
-      });
+      })
+      storage.setItem('test','test')
+      console.log(storage.getItem('test'))
   }
 }
 module.exports = spotifyWebUtility
