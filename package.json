@@ -9,7 +9,8 @@
   "author": "Durush",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^15.1.2"
+    "electron": "^15.1.2",
+    "electron-reloader": "^1.2.1"
   },
   "dependencies": {
     "electron": "^15.1.2",
