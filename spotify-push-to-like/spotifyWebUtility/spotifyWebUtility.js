@@ -17,9 +17,11 @@ const spotifyApi = new SpotifyWebApi({
 
 const storage = new LocalStorage('./local-storage')
 
-var cachedTracks = storage.getItem('cached-tracks') ? JSON.parse(storage.getItem('cached-tracks')) : {
+const emptyTracks = {
   tracks : []
 };
+
+var cachedTracks = storage.getItem('cached-tracks') ? JSON.parse(storage.getItem('cached-tracks')) : emptyTracks 
 
 var currentTrack = {}
 
@@ -83,21 +85,24 @@ class spotifyWebUtility{
     async track(user){
       const track = await spotifyApi.getMyCurrentPlayingTrack(user);
       console.log("currently listening to " + track.body.item.name + " by: " + track.body.item.album.artists[0].name)
-      await this.cacheTrackData(track.body.item)
-      return track.body.item.id
+      //await this.cacheTrackData(track.body.item)
+      return track.body.item
     }
 
-    async like(id){
+    async like(track){
+      let id = track.id
       let isLiked = await this.trackIsLiked(id)
       if(isLiked){
         await spotifyApi.removeFromMySavedTracks([id])
         console.log("track is already liked... removing it")
         console.log("removed track from liked with id: " + id)
+        this.cacheTrackData(track, isLiked)
         return
       }
       const response = await spotifyApi.addToMySavedTracks([id])
       console.log("added track to liked with id: " + id)
       console.log("response status: " + response.statusCode)
+      this.cacheTrackData(track, isLiked)
     }
 
     async trackIsLiked(id){
@@ -105,7 +110,7 @@ class spotifyWebUtility{
       return isLiked.body[0]
     }
 
-    async cacheTrackData(track){
+    async cacheTrackData(track, isLiked){
       let json = {}
       json.track= track.name
       json.artist = track.album.artists[0].name
@@ -115,7 +120,6 @@ class spotifyWebUtility{
         width : image.width,
         url : image.url
       }
-      let isLiked = await this.trackIsLiked(track.id)
       json.result = isLiked ? "UNLIKED" : "LIKED"
       cachedTracks.tracks.push(json)
       while(cachedTracks.tracks.length > CACHE_SIZE){
@@ -129,12 +133,17 @@ class spotifyWebUtility{
       return cachedTracks
     }
 
+    clearCachedTracks(){
+      cachedTracks = emptyTracks
+      storage.clear()
+    }
+
     likeCurrentTrack() {
       (async () => {
           const u = await this.me()
           console.log("user is " + u)
           const t = await this.track(u)
-          console.log("track is " + t)
+          console.log("track id: " + t.id)
           await this.like(t)
       })().catch(e => {
           console.error(e);
