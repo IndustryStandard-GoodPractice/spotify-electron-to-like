@@ -53,6 +53,11 @@ nav {
     right: 0;
     padding: 10px;
     z-index: 99999;
+    
+}
+
+.draggable-nav {
+    width: fit-content;
     -webkit-app-region: drag;
 }
 
