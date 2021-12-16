@@ -139,8 +139,6 @@ class spotifyWebUtility{
       })().catch(e => {
           console.error(e);
       })
-      storage.setItem('test','test')
-      console.log(storage.getItem('test'))
   }
 }
 module.exports = spotifyWebUtility
