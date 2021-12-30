@@ -1,5 +1,6 @@
 const spotifyWebUtility = require('./spotifyWebUtility/spotifyWebUtility');
 const express = require('express')
+//const storage = new LocalStorage('./local-storage')
 
 // This file is based on: https://github.com/thelinmichael/spotify-web-api-node/blob/master/examples/tutorial/00-get-access-token.js
 

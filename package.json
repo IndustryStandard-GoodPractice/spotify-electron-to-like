@@ -13,8 +13,11 @@
     "electron-reloader": "^1.2.1"
   },
   "dependencies": {
+    "@electron/remote": "^2.0.1",
     "electron": "^15.1.2",
+    "electron-debug": "^3.2.0",
     "electron-store": "^8.0.1",
-    "node-fetch": "^3.0.0"
+    "node-fetch": "^3.0.0",
+    "node-localstorage": "^2.2.1"
   }
 }

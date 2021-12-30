@@ -2,3 +2,4 @@ node_modules
 package-lock.json
 spotify-electron-to-like*
 local-storage
+albums

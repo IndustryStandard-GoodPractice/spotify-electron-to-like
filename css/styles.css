@@ -133,6 +133,7 @@ h1 {
 .coolButton:hover,
 .song:hover {
     transform: scale(.975);
+    cursor: pointer;
 }
 
 .headerText {
@@ -201,6 +202,12 @@ h1 {
     margin-bottom: 10px;
     font-weight: bold;
     color: white;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.headerEdit:hover {
+    transform: scale(.975);
 }
 
 .moduleContent {

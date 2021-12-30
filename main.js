@@ -1,21 +1,30 @@
-try {
+/*try {
   require('electron-reloader')(module)
-} catch (_) {}
+} catch (_) {}*/
+require('@electron/remote/main').initialize()
+const debug = require('electron-debug');
+
+debug();
+const LocalStorage = require('node-localstorage').LocalStorage;
 
 const express = require('./spotify-push-to-like')
-//import fetch from 'node-fetch';
+const storage = new LocalStorage('./local-storage')
+if(!storage.getItem('keybind')){
+  storage.setItem('keybind','L')
+}
+
 const {
   app,
   BrowserWindow,
   globalShortcut,
-  net
+  net,
+  ipcMain
 } = require('electron')
 const Store = require('electron-store')
-//const net = electron.remote.net;
 const path = require('path')
-const store = new Store()
 
 const EXP_URL = "http://localhost:8888"
+const KEYBIND_START = "CommandOrControl+"
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -25,12 +34,50 @@ function createWindow() {
     transparent: true,
     frame: false,
     webPreferences: {
-      preload: path.join(__dirname + "/scripts", 'preload.js')
+      nodeIntegration: true,
+      contextIsolation: false
     }
   })
 
   win.loadFile('index.html')
 }
+
+app.whenReady().then(() => {
+  let key = storage.getItem('keybind')
+  setKeybind(key)
+}).then(createWindow).then(() => {
+  if(!storage.getItem('refreshToken')){
+    require('electron').shell.openExternal(EXP_URL + '/login');
+  }
+})
+
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') app.quit()
+})
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow()
+  }
+})
+
+ipcMain.on('minimize', () => {
+  BrowserWindow.getFocusedWindow().minimize()
+})
+
+ipcMain.on('maximize', () => {
+  let win = BrowserWindow.getFocusedWindow()
+  win.isMaximized() ? win.unmaximize() : win.maximize()
+})
+
+ipcMain.on('exit', () => {
+  BrowserWindow.getFocusedWindow().close()
+})
+
+ipcMain.on('update-keybind', () => {
+  setKeybind(storage.getItem('keybind'))
+})
 
 async function fetchExpressUrl(endpoint) {
   var requestApi = {
@@ -44,50 +91,19 @@ async function fetchExpressUrl(endpoint) {
   request.on('response', d => {
     console.log("logging from electron")
     console.log(`STATUS: ${d.statusCode}`)
-    d.on('data', chunk => {
-      if (chunk.toString().startsWith('{')) {
-        let json = JSON.parse(chunk.toString())
-        console.log("JSON:")
-        json.tracks.forEach(track => console.log(track))
-        console.log(`track count: ${json.tracks.length}`)
-      }
-    })
   });
   request.end();
 }
 
-function authWindow() {
-  const auth = new BrowserWindow({
-    width: 900,
-    height: 900
-  })
-  auth.loadURL("http://localhost:8888/login")
-}
-
-app.whenReady().then(() => {
-  globalShortcut.register('CommandOrControl+L', () => {
+function setKeybind(key){
+  key = key.toUpperCase()
+  globalShortcut.unregisterAll()
+  globalShortcut.register(`${createKeybindString(key)}`, () => {
     fetchExpressUrl("/like-current-track")
   })
-  globalShortcut.register('CommandOrControl+B', () => {
-    //let tracks = await fetchExpressUrl("/likedTracks")
-    //let tracks
-    fetchExpressUrl("/liked-tracks").then(() => {
-      //store.set('test','test')
-      //console.log(`logging from fetch: ${store.get('test')}`)
-    })
-    //console.log(tracks)
-  })
-}).then(createWindow).then(() => {
-  require('electron').shell.openExternal(EXP_URL + '/login');
-})
+  storage.setItem('keybind', key)
+}
 
-
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit()
-})
-
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
-})
+function createKeybindString(key){
+  return `${KEYBIND_START}${key}`
+}
