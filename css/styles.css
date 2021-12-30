@@ -249,3 +249,19 @@ h1 {
 .emailText {
     font-weight: bold;
 }
+
+.settingsItem {
+    background: var(--gray);
+    padding: 10px;
+    border-radius: 4px;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    margin-left: 3px;
+    margin-right: 3px;
+    cursor: pointer;
+}
+
+.settingsItem:hover {
+    transform: scale(.975);
+    cursor: pointer;
+}
