@@ -28,6 +28,23 @@ window.addEventListener("DOMContentLoaded", () => {
     })
     const keyText = document.getElementById('key')
     keyText.innerText = storage.getItem('keybind')
+    const clearHistory = document.getElementById('clearHistory')
+    clearHistory.addEventListener('click', () => {
+        ipcRenderer.send('clear-history')
+        const history = getHistory()
+        while (history.firstChild){
+            history.removeChild(history.firstChild)
+        }
+    })
+    const resetCounter = document.getElementById('resetCounter')
+    resetCounter.addEventListener('click', () => {
+        storage.setItem('liked-count', 0)
+        storage.setItem('unliked-count', 0)
+    })
+    const historySize = document.getElementById('historySize')
+    historySize.addEventListener('click', () => {
+        ipcRenderer.send('edit-history-size')
+    })
 
     updateHistory();
     updateLikeCounts();
@@ -51,8 +68,10 @@ function addSong(song, history){
 
     let songInfo = document.createElement('div')
     songInfo.classList.add("songInfo")
-    songInfo.innerHTML = `<p class='songTitle'>${song.track}</p>`
-    songInfo.innerHTML += `<p class='songArtist'>${song.artist}</p>`
+    let track = song.track.length > 25 ? song.track.substring(0,20) + '...' : song.track
+    songInfo.innerHTML = `<p class='songTitle'>${track}</p>`
+    let artist = song.artist.length > 28 ? song.artist.substring(0,24).trim() + '...' : song.artist
+    songInfo.innerHTML += `<p class='songArtist'>${artist}</p>`
     songItemMain.appendChild(songInfo)
 
     songItem.appendChild(songItemMain)

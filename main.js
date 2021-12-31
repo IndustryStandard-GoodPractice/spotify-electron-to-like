@@ -18,7 +18,8 @@ const {
   BrowserWindow,
   globalShortcut,
   net,
-  ipcMain
+  ipcMain,
+  dialog
 } = require('electron')
 const Store = require('electron-store')
 const path = require('path')
@@ -28,6 +29,7 @@ const KEYBIND_START = "CommandOrControl+"
 
 function createWindow() {
   const win = new BrowserWindow({
+    icon: 'resources/app/logos/pushToLikeIcon.png',
     width: 800,
     height: 600,
     autoHideMenuBar: true,
@@ -78,6 +80,28 @@ ipcMain.on('exit', () => {
 ipcMain.on('update-keybind', () => {
   setKeybind(storage.getItem('keybind'))
 })
+
+ipcMain.on('clear-history', () => {
+  fetchExpressUrl('/clear-tracks')
+})
+
+ipcMain.on('edit-history-size', () => {
+  updateCacheSize()
+})
+
+async function updateCacheSize(){
+  let opts = {
+    buttons: ['cancel','25','50','100','200'],
+    message: 'Select the desired song history size.'
+  }
+  let response = await dialog.showMessageBox(opts)
+  console.log(response)
+  let responseString = opts.buttons[response.response]
+  if(responseString != 'cancel'){
+    console.log(`setting cache size to ${responseString}`)
+    storage.setItem('cache-size', responseString)
+  }
+}
 
 async function fetchExpressUrl(endpoint) {
   var requestApi = {
