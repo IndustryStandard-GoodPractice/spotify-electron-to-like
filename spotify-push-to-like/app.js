@@ -1,5 +1,6 @@
 const spotifyWebUtility = require('./spotifyWebUtility/spotifyWebUtility');
 const express = require('express')
+//const storage = new LocalStorage('./local-storage')
 
 // This file is based on: https://github.com/thelinmichael/spotify-web-api-node/blob/master/examples/tutorial/00-get-access-token.js
 
@@ -30,6 +31,16 @@ var caller = new spotifyWebUtility();
     caller.likeCurrentTrack()
     return res.send('Received a GET HTTP method');
   });
+
+  app.get("/liked-tracks", (req, res) =>{
+    let tracks = caller.getCachedTracks()
+    return res.send(tracks)
+  })
+
+  app.get("/clear-tracks", (req, res) =>{
+    caller.clearCachedTracks()
+    return res.send("Track History has been cleared.")
+  })
 
   app.listen(8888, () =>
     console.log(

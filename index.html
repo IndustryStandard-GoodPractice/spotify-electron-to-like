@@ -1,35 +1,85 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-        <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-        <link href="css/styles.css" rel="stylesheet" type="text/css">
-        <title>Spotify Push To Like</title>
-    </head>
-    <div class='mainWindow'>
-        <div class='topBar'>
-            <img src="logos/github-logo.svg" alt='logo' class="githubLogo">
-            <div class=leftBar>
+
+<head>
+    <meta charset="UTF-8">
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">-->
+    <meta http-equiv="Content-Security-Policy" content="default-src *; img-src *; child-src 'none';">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <link href="css/styles.css" rel="stylesheet" type="text/css">
+    <title>Spotify Push To Like</title>
+</head>
+
+<body>
+    <nav>
+        <div class= "draggable-nav">
+        </div>
+        <div>
+            <button id='minimize' class="minimize coolButton"></button>
+            <button id='maximize' class="maximize coolButton"></button>
+            <button id='exit' class="exit coolButton"></button>
+        </div>
+    </nav>
+    <main>
+        <div class='topBar rowCenter'>
+            <div class='leftBar rowCenter'>
                 <img src="logos/spotify-logo.svg" alt='logo' class="spotifyLogo">
-                <h1 class='title'>Push To Like</h1>
+                <h1 id= 'chrome-version'>Spotify Push to Like</h1>
+            </div>
+            <div id='github' class="coolButton">
+                <img src="logos/github-logo.svg" alt='logo' class="githubLogo">
             </div>
         </div>
         <div class="mainContents">
             <div class="historyBar">
-                <p class="likeText">Like History</p>
-            </div>
-            <div class='song'>
-                <div class ='songLeftAlign'>
-                    <div class='songInfo'>
-                        <p class= 'songTitle'>Adult</p>
-                        <p class= 'songArtist'>Christian Leave</p>
-                    </div>
-                    <img src="logos/testAlbumCover.jpg" class="albumCover"></img>
+                <p class="headerText">Like History</p>
+                <div id="history" class="history">
+                    <!--<div class='song rowCenter'>
+                        <div class='rowCenter'>
+                            <img src="file://C:/Users/demon/spotify-apps/spotify-electron-to-like/albums/stone-1640573622.jpeg" class="albumCover"></img>
+                            <div class='songInfo'>
+                                <p class='songTitle'>Adult</p>
+                                <p class='songArtist'>Christian Leave</p>
+                            </div>
+                        </div>
+                        <img src="logos/liked-icon.svg" class="likedIcon"></img>
+                    </div>-->
                 </div>
-                <img src="logos/liked-icon.svg" class="likedIcon"></img>
+            </div>
+            <div class="modules">
+                <div class='module'>
+                    <p class='headerText'>Songs Pushed</p>
+                    <div class='moduleContent'>
+                        <p id='liked-text' class='songsLiked'>0 songs liked</p>
+                        <p id='unliked-text'class='songsDisliked'>0 songs un-liked</p>
+                    </div>
+                </div>
+                <div class='module'>
+                    <div class="moduleEditable rowCenter">
+                        <p class='headerText'>Hotkey</p>
+                        <p id='editKeybind' class="headerEdit">Edit</p>
+                    </div>
+                    <div class='moduleContent rowCenter'>
+                        <p class='key'>Control</p>
+                        +
+                        <p id='key' class='key'>L</p>
+                    </div>
+                </div>
+                <div class='module'>
+                    <div class="moduleEditable rowCenter">
+                        <p class='headerText'>Settings</p>
+                    </div>
+                    <div class='moduleContent rowCenter'>
+                        <!--<p class='label'>clear</p>-->
+                        <p id='clearHistory'class='settingsItem rowCenter'>Clear History</p>
+                        <p id='historySize' class='settingsItem rowCenter'>Set History Size</p>
+                        <p id='resetCounter' class='settingsItem rowCenter'>Reset Counters</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
+    <script src="./scripts/renderer.js"></script>
+</body>
+
 </html>
