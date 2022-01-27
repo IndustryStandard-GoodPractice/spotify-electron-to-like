@@ -1,7 +1,4 @@
 const SpotifyWebApi = require('spotify-web-api-node');
-const LocalStorage = require('node-localstorage').LocalStorage;
-const fs = require('fs')
-const request = require('request');
 const scopes = [
     'user-read-playback-state',
     'user-read-currently-playing',
@@ -15,23 +12,24 @@ const spotifyApi = new SpotifyWebApi({
     clientSecret: '2d44d8fe8e8e4a979c3728be334b9390',
     redirectUri: 'http://localhost:8888/callback'
   });
-const storage = new LocalStorage('./local-storage')
-const CACHE_SIZE = storage.getItem('cache-size') ? parseInt(storage.getItem('cache-size')) : 50
-storage.setItem('cache-size', CACHE_SIZE)
+const Store = require('electron-store') 
+const store = new Store()
+const CACHE_SIZE = store.get('cache-size') ? parseInt(store.get('cache-size')) : 50
+store.set('cache-size', CACHE_SIZE)
 var emptyTracks = function (){
   return {
     tracks : []
   };
 }
-var cachedTracks = storage.getItem('cached-tracks') ? JSON.parse(storage.getItem('cached-tracks')) : emptyTracks()
-if(!storage.getItem('cached-tracks')){
-  storage.setItem('cached-tracks', JSON.stringify(emptyTracks()))
+var cachedTracks = store.get('cached-tracks') ? JSON.parse(store.get('cached-tracks')) : emptyTracks()
+if(!store.get('cached-tracks')){
+  store.set('cached-tracks', JSON.stringify(emptyTracks()))
 }
-if(!storage.getItem('liked-count')){
-  storage.setItem('liked-count',0)
+if(!store.get('liked-count')){
+  store.set('liked-count',0)
 }
-if(!storage.getItem('unliked-count')){
-  storage.setItem('unliked-count',0)
+if(!store.get('unliked-count')){
+  store.set('unliked-count',0)
 }
 var currentTrack = {}
 
@@ -42,8 +40,8 @@ class spotifyWebUtility{
         if(access_token && refresh_token){
           spotifyApi.setAccessToken(this.access_token);
           spotifyApi.setRefreshToken(this.refresh_token);
-        } else if(storage.getItem('refreshToken')){
-          this.refresh_token = storage.getItem('refreshToken')
+        } else if(store.get('refreshToken')){
+          this.refresh_token = store.get('refreshToken')
           spotifyApi.setRefreshToken(this.refresh_token)
           /*let data = await spotifyApi.refreshAccessToken();
           let access_token = data.body['access_token'];
@@ -65,7 +63,7 @@ class spotifyWebUtility{
       console.log('access_token:', access_token);
       this.updateTokens(access_token, this.refresh_token);
 
-      storage.setItem('refreshToken', this.refresh_token)
+      store.set('refreshToken', this.refresh_token)
 
       setInterval(async () => {
         const data = await spotifyApi.refreshAccessToken();
@@ -94,7 +92,7 @@ class spotifyWebUtility{
       .authorizationCodeGrant(code)
       .then(data => {
         const access_token = data.body['access_token'];
-        const refresh_token = storage.getItem('refreshToken') ? storage.getItem('refreshToken') : data.body['refresh_token'];
+        const refresh_token = store.get('refreshToken') ? store.get('refreshToken') : data.body['refresh_token'];
         const expires_in = data.body['expires_in'];
 
         this.updateTokens(access_token, refresh_token);
@@ -103,7 +101,7 @@ class spotifyWebUtility{
         console.log('refresh_token:', refresh_token);
 
         console.log(`Sucessfully retreived access token. Expires in ${expires_in} s.`);
-        storage.setItem('refreshToken', refresh_token)
+        store.set('refreshToken', refresh_token)
 
         setInterval(async () => {
           const data = await spotifyApi.refreshAccessToken();
@@ -112,7 +110,7 @@ class spotifyWebUtility{
           console.log('The access token has been refreshed!');
           console.log('access_token:', access_token);
           this.updateTokens(access_token, refresh_token);
-          storage.setItem('refreshToken', refresh_token)
+          store.set('refreshToken', refresh_token)
 
         }, expires_in / 2 * 1000);
       })
@@ -154,17 +152,17 @@ class spotifyWebUtility{
         console.log("track is already liked... removing it")
         console.log("removed track from liked with id: " + id)
         this.cacheTrackData(track, isLiked)
-        let unlikedCount = storage.getItem('unliked-count') ? storage.getItem('unliked-count') : 0
+        let unlikedCount = store.get('unliked-count') ? store.get('unliked-count') : 0
         unlikedCount++
-        storage.setItem('unliked-count', unlikedCount)
+        store.set('unliked-count', unlikedCount)
         return
       }
       const response = await spotifyApi.addToMySavedTracks([id])
       console.log("added track to liked with id: " + id)
       console.log("response status: " + response.statusCode)
-      let likedCount = storage.getItem('liked-count') ? storage.getItem('liked-count') : 0
+      let likedCount = store.get('liked-count') ? store.get('liked-count') : 0
       likedCount++
-      storage.setItem('liked-count', likedCount)
+      store.set('liked-count', likedCount)
       this.cacheTrackData(track, isLiked)
     }
 
@@ -193,7 +191,7 @@ class spotifyWebUtility{
         cachedTracks.tracks.splice(0,1)
       }
       currentTrack = json
-      storage.setItem('cached-tracks', JSON.stringify(cachedTracks))
+      store.set('cached-tracks', JSON.stringify(cachedTracks))
     }
 
     getCachedTracks(){
@@ -204,7 +202,7 @@ class spotifyWebUtility{
       cachedTracks = emptyTracks()
       let json = JSON.stringify(emptyTracks())
       console.log(json)
-      storage.setItem('cached-tracks', json)
+      store.set('cached-tracks', json)
     }
 
     likeCurrentTrack() {

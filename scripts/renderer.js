@@ -1,9 +1,8 @@
-const LocalStorage = require('node-localstorage').LocalStorage;
-
 const { remote, ipcMain } = require('electron')
 const { ipcRenderer } = require('electron')
 
-const storage = new LocalStorage('./local-storage')
+const Store = require('electron-store') 
+const store = new Store()
 
 window.addEventListener("DOMContentLoaded", () => {
     const minimizeButton = document.getElementById("minimize")
@@ -27,7 +26,7 @@ window.addEventListener("DOMContentLoaded", () => {
         keybindUpdater()
     })
     const keyText = document.getElementById('key')
-    keyText.innerText = storage.getItem('keybind')
+    keyText.innerText = store.get('keybind')
     const clearHistory = document.getElementById('clearHistory')
     clearHistory.addEventListener('click', () => {
         ipcRenderer.send('clear-history')
@@ -38,8 +37,8 @@ window.addEventListener("DOMContentLoaded", () => {
     })
     const resetCounter = document.getElementById('resetCounter')
     resetCounter.addEventListener('click', () => {
-        storage.setItem('liked-count', 0)
-        storage.setItem('unliked-count', 0)
+        store.set('liked-count', 0)
+        store.set('unliked-count', 0)
     })
     const historySize = document.getElementById('historySize')
     historySize.addEventListener('click', () => {
@@ -111,7 +110,7 @@ function getHistory(){
 function updateHistory(){
     const history = getHistory();
     const ids = getActiveDivIds();
-    const tracks = JSON.parse(storage.getItem('cached-tracks')).tracks
+    const tracks = JSON.parse(store.get('cached-tracks')).tracks
 
     tracks.forEach(track => {
         if(!ids.includes(track.divId)){
@@ -119,7 +118,7 @@ function updateHistory(){
             addSong(track, history)
         }
     })
-    const CACHE_SIZE = parseInt(storage.getItem('cache-size'))
+    const CACHE_SIZE = parseInt(store.get('cache-size'))
     while (history.children.length > CACHE_SIZE){
         history.removeChild(history.lastChild)
     }
@@ -128,9 +127,9 @@ function updateHistory(){
 function updateLikeCounts(){
     const likedText = document.getElementById('liked-text');
     const unlikedText = document.getElementById('unliked-text')
-    let likedCount = storage.getItem('liked-count') ? storage.getItem('liked-count') : '0'
+    let likedCount = store.get('liked-count') ? store.get('liked-count') : '0'
     //console.log(likedCount);
-    let unlikedCount = storage.getItem('unliked-count') ? storage.getItem('unliked-count') : '0'
+    let unlikedCount = store.get('unliked-count') ? store.get('unliked-count') : '0'
     //console.log(unlikedCount);
     likedText.innerText = `${likedCount} songs liked`
     unlikedText.innerText = `${unlikedCount} songs un-liked`
@@ -144,7 +143,7 @@ function keybindUpdater(){
         function onKeyHandler(e) {
             if (isLetter(e.key)) {
                 keyText.innerText = e.key
-                storage.setItem('keybind',e.key)
+                store.set('keybind',e.key)
                 document.removeEventListener('keydown', onKeyHandler);
                 ipcRenderer.send('update-keybind')
                 resolve();

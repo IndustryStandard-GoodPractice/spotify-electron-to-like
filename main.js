@@ -5,12 +5,12 @@ require('@electron/remote/main').initialize()
 const debug = require('electron-debug');
 
 debug();
-const LocalStorage = require('node-localstorage').LocalStorage;
 
 const express = require('./spotify-push-to-like')
-const storage = new LocalStorage('./local-storage')
-if(!storage.getItem('keybind')){
-  storage.setItem('keybind','L')
+const Store = require('electron-store') 
+const store = new Store()
+if(!store.get('keybind')){
+  store.set('keybind','L')
 }
 
 const {
@@ -21,7 +21,6 @@ const {
   ipcMain,
   dialog
 } = require('electron')
-const Store = require('electron-store')
 const path = require('path')
 
 const EXP_URL = "http://localhost:8888"
@@ -45,10 +44,10 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  let key = storage.getItem('keybind')
+  let key = store.get('keybind')
   setKeybind(key)
 }).then(createWindow).then(() => {
-  if(!storage.getItem('refreshToken')){
+  if(!store.get('refreshToken')){
     require('electron').shell.openExternal(EXP_URL + '/login');
   }
 })
@@ -78,7 +77,7 @@ ipcMain.on('exit', () => {
 })
 
 ipcMain.on('update-keybind', () => {
-  setKeybind(storage.getItem('keybind'))
+  setKeybind(store.get('keybind'))
 })
 
 ipcMain.on('clear-history', () => {
@@ -99,7 +98,7 @@ async function updateCacheSize(){
   let responseString = opts.buttons[response.response]
   if(responseString != 'cancel'){
     console.log(`setting cache size to ${responseString}`)
-    storage.setItem('cache-size', responseString)
+    store.set('cache-size', responseString)
   }
 }
 
@@ -117,6 +116,8 @@ async function fetchExpressUrl(endpoint) {
     console.log(`STATUS: ${d.statusCode}`)
   });
   request.end();
+  store.set('test', 'test electron store')
+  console.log(store.get('test'))
 }
 
 function setKeybind(key){
@@ -125,7 +126,7 @@ function setKeybind(key){
   globalShortcut.register(`${createKeybindString(key)}`, () => {
     fetchExpressUrl("/like-current-track")
   })
-  storage.setItem('keybind', key)
+  store.set('keybind', key)
 }
 
 function createKeybindString(key){
