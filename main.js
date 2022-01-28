@@ -86,25 +86,6 @@ app.whenReady().then(() => {
 })
 }
 
-function createTray() {
-  tray = new Tray('./logos/pushToLikeIcon.png')
-  let contextMenu = Menu.buildFromTemplate([
-    { label: 'Show App', click:  function(){
-        win.show();
-    } },
-    { label: 'Quit', click:  function(){
-        app.isQuiting = true;
-        app.quit();
-    } }
-  ]);
-  tray.setContextMenu(contextMenu);
-  tray.on("double-click", () => {
-    if(!win.isVisible()){
-      win.show()
-    }
-  })
-}
-
 app.on('close', function (event) {
   if(!app.isQuiting){
     event.preventDefault();
