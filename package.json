@@ -1,6 +1,6 @@
 {
   "name": "spotify-electron-to-like",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "electron app for spotify push to like",
   "main": "main.js",
   "scripts": {
