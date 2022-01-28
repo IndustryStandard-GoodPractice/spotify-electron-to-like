@@ -27,12 +27,12 @@ const path = require('path')
 
 const EXP_URL = "http://localhost:8888"
 const KEYBIND_START = "CommandOrControl+"
-var win
-var tray
+var win = null
+var tray = null
 
 function createWindow() {
   win = new BrowserWindow({
-    icon: 'resources/app/logos/pushToLikeIcon.png',
+    icon: path.join(__dirname, 'logos/pushToLikeIcon.png'),
     width: 800,
     height: 600,
     autoHideMenuBar: true,
@@ -44,11 +44,39 @@ function createWindow() {
     }
   })
 
+  tray = new Tray(path.join(__dirname, 'logos/pushToLikeIcon.png'))
+  let contextMenu = Menu.buildFromTemplate([
+    { label: 'Show App', click:  function(){
+        win.show();
+    } },
+    { label: 'Quit', click:  function(){
+        app.isQuiting = true;
+        app.quit();
+    } }
+  ]);
+  tray.setContextMenu(contextMenu);
+  tray.on("double-click", () => {
+    if(!win.isVisible()){
+      win.show()
+    }
+  })
+
   win.loadFile('index.html')
 }
 
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (win) {
+      if (win.isMinimized()) win.restore()
+      win.focus()
+    }
+  })
+
 app.whenReady().then(() => {
-  createTray()
   let key = store.get('keybind')
   setKeybind(key)
 }).then(createWindow).then(() => {
@@ -56,6 +84,7 @@ app.whenReady().then(() => {
     require('electron').shell.openExternal(EXP_URL + '/login');
   }
 })
+}
 
 function createTray() {
   tray = new Tray('./logos/pushToLikeIcon.png')
@@ -81,6 +110,8 @@ app.on('close', function (event) {
     event.preventDefault();
     win.hide();
   }
+
+  return false
 })
 
 app.on('activate', () => {

@@ -77,7 +77,7 @@ function addSong(song, history){
     let likeStatus = song.result == "LIKED" ? 'logos/liked-icon.svg' : 'logos/unliked-icon.svg'
     songItem.innerHTML += `<img src=${likeStatus} class='likedIcon'></img>`
     songItem.addEventListener('click', () => {
-        require('electron').shell.openExternal(song.spotifyUrl)
+        require('electron').shell.openExternal(song.spotifyUrl + '?si=')
     })
     if(history.children.length > 0){
         console.log('inserted')
