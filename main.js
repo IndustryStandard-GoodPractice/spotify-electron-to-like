@@ -45,7 +45,9 @@ function createWindow() {
     }
   })
 
-  tray = new Tray(path.join(__dirname, 'logos/pushToLikeIcon-32x32.png'))
+  let trayIcon = (process.platform === 'darwin') ? 'logos/pushToLikeIcon-16x16.png' : 'logos/pushToLikeIcon-32x32.png'
+
+  tray = new Tray(path.join(__dirname, trayIcon))
   let contextMenu = Menu.buildFromTemplate([
     { label: 'Show App', click:  function(){
         win.show();
