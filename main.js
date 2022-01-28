@@ -19,15 +19,19 @@ const {
   globalShortcut,
   net,
   ipcMain,
-  dialog
+  dialog,
+  Menu,
+  Tray
 } = require('electron')
 const path = require('path')
 
 const EXP_URL = "http://localhost:8888"
 const KEYBIND_START = "CommandOrControl+"
+var win
+var tray
 
 function createWindow() {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     icon: 'resources/app/logos/pushToLikeIcon.png',
     width: 800,
     height: 600,
@@ -44,6 +48,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  createTray()
   let key = store.get('keybind')
   setKeybind(key)
 }).then(createWindow).then(() => {
@@ -52,9 +57,30 @@ app.whenReady().then(() => {
   }
 })
 
+function createTray() {
+  tray = new Tray('./logos/pushToLikeIcon.png')
+  let contextMenu = Menu.buildFromTemplate([
+    { label: 'Show App', click:  function(){
+        win.show();
+    } },
+    { label: 'Quit', click:  function(){
+        app.isQuiting = true;
+        app.quit();
+    } }
+  ]);
+  tray.setContextMenu(contextMenu);
+  tray.on("double-click", () => {
+    if(!win.isVisible()){
+      win.show()
+    }
+  })
+}
 
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit()
+app.on('close', function (event) {
+  if(!app.isQuiting){
+    event.preventDefault();
+    win.hide();
+  }
 })
 
 app.on('activate', () => {
@@ -64,16 +90,15 @@ app.on('activate', () => {
 })
 
 ipcMain.on('minimize', () => {
-  BrowserWindow.getFocusedWindow().minimize()
+  win.minimize()
 })
 
 ipcMain.on('maximize', () => {
-  let win = BrowserWindow.getFocusedWindow()
   win.isMaximized() ? win.unmaximize() : win.maximize()
 })
 
 ipcMain.on('exit', () => {
-  BrowserWindow.getFocusedWindow().close()
+  win.hide()
 })
 
 ipcMain.on('update-keybind', () => {
