@@ -119,7 +119,7 @@ h1 {
 .mainContents {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 60px);
     display: grid;
     grid-template-columns: 250px 1fr;
     grid-gap: 30px;
@@ -128,6 +128,10 @@ h1 {
 .coolButton,
 .song {
     transition: all .2s ease-in-out;
+}
+
+.song:last-of-type{
+    margin-bottom: 30px;
 }
 
 .coolButton:hover,
@@ -151,7 +155,7 @@ h1 {
 .history,
 .modules {
     height: 100%;
-    overflow: scroll;
+    overflow: auto;
     padding-bottom: 30px;
 }
 
